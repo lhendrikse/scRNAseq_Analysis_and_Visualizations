@@ -46,7 +46,7 @@ for (i in 1:length(so.list)) {
         so.list[[i]][["percent.mt"]]  <- PercentageFeatureSet(so.list[[i]], pattern = "^MT-") # pattern = "^mt-" for mice
         
         # Pre-QC diagnostic plots
-        pdf(paste0(plot_dir, id, "_Pre_QC_Violins.pdf")
+        pdf(paste0(plot_dir, id, "_Pre_QC_Violins.pdf"))
         print(VlnPlot(so.list[[i]], features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3))
         dev.off()
         
@@ -64,7 +64,7 @@ for (i in 1:length(so.list)) {
         saveRDS(so.list[[i]], file = paste0(out_dir, id[i], "_scRNAseq_raw.rds"))
 
         # Post-QC diagnostic plots
-        pdf(paste0(plot_dir, id, "_Post_QC_Violins.pdf")
+        pdf(paste0(plot_dir, id, "_Post_QC_Violins.pdf"))
         print(VlnPlot(so.list[[i]], features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3))
         dev.off()
 }
@@ -84,8 +84,8 @@ for (i in 1:length(SCT.list)) {
 	
 	SCT.list[[i]] = RunPCA(SCT.list[[i]],assay="SCT")
 	
-  # Determine significant PCs
-  pdf(paste0(plot_dir, id, "_Elbow.pdf")
+	# Determine significant PCs
+	pdf(paste0(plot_dir, id, "_Elbow.pdf"))
 	print(ElbowPlot(SCT.list[[i]]))
 	dev.off()
 
@@ -93,11 +93,11 @@ for (i in 1:length(SCT.list)) {
 	SCT.list[[i]] = JackStraw(SCT.list[[i]], num.replicate = 100)
 	SCT.list[[i]] = ScoreJackStraw(SCT.list[[i]], dims = 1:20)
 	
-  pdf(paste0(plot_dir, id, "_Jackstraw.pdf")
+	pdf(paste0(plot_dir, id, "_Jackstraw.pdf"))
 	print(JackStrawPlot(SCT.list[[i]], dims = 1:20))
 	dev.off()
 
-  # Save normalized object
+	# Save normalized object
 	saveRDS(SCT.list[[i]], file = paste0(out_dir, id[i], "_scRNAseq_sct.rds"))
 
 }
