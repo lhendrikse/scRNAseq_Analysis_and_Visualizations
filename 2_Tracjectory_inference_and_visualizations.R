@@ -56,8 +56,9 @@ args = commandArgs(trailingOnly=TRUE)
 so_path = args[1] #path to seurat object
 id = args[2] #name of seurat object which has been normalized, clustered, annotated, etc. 
 
-colours = c("RL-VZ" = "#FFD92F", "RL-SVZ" = "#ADDD8E", "Early UBCs" = "#41AB5D",
-                   "Late UBCs" = "#006837", "GCP" = "#FEE0D2", "Early GN" = "#FC9272", "GN" = "#CB181D" )
+colors_dutch = c('#B53471','#FFC312','#C4E538','#12CBC4','#FDA7DF','#ED4C67','#F79F1F','#A3CB38','#D980FA','#EE5A24','#9980FA','#EA2027','#5758BB')
+colors_spanish = c('#40407a','#706fd3','#f7f1e3','#34ace0','#33d9b2','#2c2c54','#474787','#aaa69d','#227093','#218c74','#ff5252','#ff793f','#d1ccc0','#ffb142','#ffda79','#b33939','#cd6133','#84817a','#cc8e35','#ccae62')
+colours = c(colors_dutch, colors_spanish)
 
 # Directories -------------------------------------------------------------
 out_dir = "/outs/"
@@ -72,11 +73,11 @@ sce = as.SingleCellExperiment(so, assay = "SCT")
 sce$seurat_clusters = as.numeric(sce$seurat_clusters)
 
 # Run slingshot -----------------------------------------------------------
-sce <- slingshot(sce, clusterLabels = 'new_cell_type', reducedDim = 'UMAP', start.clus = "RL-VZ")
+sce = slingshot(sce, clusterLabels = 'new_cell_type', reducedDim = 'UMAP', start.clus = "RL-VZ")
 
 # Visualize
-colors <- colorRampPalette(brewer.pal(11,'Spectral')[-6])(100) 
-plotcol <- colors[cut(sce$slingPseudotime_1, breaks=100)]
+colors = colorRampPalette(brewer.pal(11,'Spectral')[-6])(100) 
+plotcol = colors[cut(sce$slingPseudotime_1, breaks=100)]
 plot(reducedDims(sce)$UMAP, col=plotcol, pch=20, asp = 1)
 lines(SlingshotDataSet(sce), lwd=2, col='black')
 
@@ -100,8 +101,8 @@ ggplot(gg_data , aes(x = Pseudotime, y = Expression, colour = Pseudotime)) +
 
 # Run tradeSeq ------------------------------------------------------------
 
-sce <- fitGAM(sce)
-ATres <- associationTest(sce, lineages = T)
+sce = fitGAM(sce)
+ATres = associationTest(sce, lineages = T)
 
 plot_data = data.frame(Pseudo = so$Sling1,
                        Cell_type = so$Cell_type)
@@ -129,9 +130,9 @@ topgenes = c(subset(markers, markers$cluster == "Early VZ" & markers$pct.2 < 0.3
              
 topgenes = unique(topgenes[!is.na(topgenes)])
 
-yhatSmooth <- predictSmooth(sce, gene = topgenes, nPoints = 50, tidy = F) 
+yhatSmooth = predictSmooth(sce, gene = topgenes, nPoints = 50, tidy = F) 
 yhatSmooth = yhatSmooth[!duplicated(yhatSmooth),]
-heatSmooth <- pheatmap(t(scale(t(yhatSmooth[, 1:50]))),
+heatSmooth = pheatmap(t(scale(t(yhatSmooth[, 1:50]))),
                        cluster_cols = FALSE, 
                        cluster_rows = F, 
                        treeheight_row = 0,
