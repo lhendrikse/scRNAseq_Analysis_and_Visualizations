@@ -104,6 +104,12 @@ ggplot(gg_data , aes(x = Pseudotime, y = Expression, colour = Pseudotime)) +
 sce = fitGAM(sce)
 ATres = associationTest(sce, lineages = T)
 
+# Determine signficant lineage genes
+ATres_subset_1 = subset(ATres, ATres$pvalue_1 < 0.05)
+ATres_subset_2 = subset(ATres, ATres$pvalue_2 < 0.05)
+sig_lineage_genes = unique(c(ATres_subset_1, ATres_subset_2))
+
+# Grab pseudotime values and cell type annotations for each cell
 plot_data = data.frame(Pseudo = so$Sling1,
                        Cell_type = so$Cell_type)
 plot_data = subset(plot_data, is.na(plot_data$Pseudo) == F )
@@ -128,8 +134,10 @@ markers = FindAllMarkers(so, test.use = "MAST", only.pos = T)
 topgenes = c(subset(markers, markers$cluster == "Early VZ" & markers$pct.2 < 0.3)$gene[1:20],
              subset(markers, markers$cluster == "Prolif. VZ" & markers$pct.2 < 0.3)$gene[1:20]) #... etc 
              
-topgenes = unique(topgenes[!is.na(topgenes)])
+topgenes = unique(topgenes[!is.na(topgenes)]) #In case there are not 20 sig. markers for a cluster
+topgenes = Intersect(list(topgenes, sig_lineage_genes)) # Ensure cell type specific marker genes are also pseudotime correlated
 
+# Create smoothened expression heatmap of significant lineage markers
 yhatSmooth = predictSmooth(sce, gene = topgenes, nPoints = 50, tidy = F) 
 yhatSmooth = yhatSmooth[!duplicated(yhatSmooth),]
 heatSmooth = pheatmap(t(scale(t(yhatSmooth[, 1:50]))),
@@ -142,6 +150,7 @@ heatSmooth = pheatmap(t(scale(t(yhatSmooth[, 1:50]))),
                        #gaps_row = c(10, 24, 35),
                        show_colnames = FALSE)
 
+# Stack density and smoothened expression plots to show significant lineage associated genes correlate with changes in cell type density and differentiation
 heatSmooth = as.grob(heatSmooth)
 grid.arrange(dens, heatSmooth, nrow = 2, ncol=3,
              widths = c(0.28,3.5, 0.74),
